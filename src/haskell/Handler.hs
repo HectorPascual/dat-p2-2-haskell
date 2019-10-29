@@ -61,8 +61,9 @@ instance Applicative Handler where
     -- tipus dels metodes en aquesta instancia:
     --          pure  :: a -> Handler a
     --          (<*>) :: Handler (a -> b) -> Handler a -> Handler b
-    pure x =
-        error "Handler.pure: A completar per l'estudiant"
+    pure x = HandlerC $ \ req st ->
+        pure (x, st)
+        --error "Handler.pure: A completar per l'estudiant"
     HandlerC hf <*> HandlerC hx = HandlerC $ \ req st -> do
         ( f, st1 ) <- hf req st
         ( x, st2 ) <- hx req st1
@@ -72,8 +73,16 @@ instance Monad Handler where
     -- tipus dels metodes en aquesta instancia:
     --          (>>=) :: Handler a -> (a -> Handler b) -> Handler b
     return = pure
-    HandlerC hx >>= f =
-        error "Handler.(>>=): A completar per l'estudiant"
+
+    HandlerC hx >>= f = HandlerC $ \ req st -> do -- monad IO
+        ( a, st1 ) <- hx req st
+        
+        --runHandler (f a) req st1
+        HandlerC hy <- f a
+        hy req st1
+        
+        --error "Handler.(>>=): A completar per l'estudiant"
+
 
 -- ****************************************************************
 
@@ -107,8 +116,10 @@ dispatchHandler handler req respond = do
 
 -- Obte el metode HTTP de la peticio
 getMethod :: Handler Method
-getMethod =
-    error "Handler.getMethod: A completar per l'estudiant"
+getMethod = HandlerC $ \ req st -> do
+    Method a = requestMethod req
+    pure (a, st) 
+    --error "Handler.getMethod: A completar per l'estudiant"
 
 -- Obte el valor de l'atribut de sessio indicat amb el nom.
 -- Retorna Nothing si l'atribut indicat no existeix.
