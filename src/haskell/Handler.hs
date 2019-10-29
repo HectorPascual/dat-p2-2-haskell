@@ -74,12 +74,12 @@ instance Monad Handler where
     --          (>>=) :: Handler a -> (a -> Handler b) -> Handler b
     return = pure
 
-    HandlerC hx >>= f = HandlerC $ \ req st -> do -- monad IO
+    HandlerC hx >>= f = HandlerC $ \ req st -> do -- monad IO   
         ( a, st1 ) <- hx req st
         
         --runHandler (f a) req st1
         HandlerC hy <- f a
-        hy req st1
+        hy req st1 -- IO (b, HandlerState)
         
         --error "Handler.(>>=): A completar per l'estudiant"
 
@@ -117,7 +117,8 @@ dispatchHandler handler req respond = do
 -- Obte el metode HTTP de la peticio
 getMethod :: Handler Method
 getMethod = HandlerC $ \ req st -> do
-    Method a = requestMethod req
+    let a :: Method
+        a = requestMethod req
     pure (a, st) 
     --error "Handler.getMethod: A completar per l'estudiant"
 
